@@ -1,14 +1,25 @@
-# hermes-skills
+# 旅途助手 (Road Trip Planner)
 
-My Hermes Agent skills collection.
+智能旅行攻略生成工具 —— 按时间线整合景点、导航、餐饮、住宿，一键输出完整行程文档。
 
-## Skills
+## 功能特点
 
-### travel-itinerary
-自驾/旅行攻略文档生成，按时间线整合景点信息、导航、餐饮、住宿为一体化文档。
+- 🗓️ **时间线驱动**：以"几点到几点做什么"为主轴，清晰呈现每日行程
+- 🗺️ **导航即搜即用**：每个地点附带高德地图搜索关键词
+- 🎫 **门票透明**：价格、是否需预约、能否自驾进入一目了然
+- 🏨 **住宿推荐**：含搜索关键词、价格区间、特殊提醒
+- 💰 **费用汇总**：自动生成预算表，人均清晰
+- ⚠️ **避坑指南**：列出各地特有注意事项
 
-**安装方式：**
+## 使用方式
+
 ```bash
 hermes skills tap add chenkunqing/hermes-skills
 hermes skills install travel-itinerary
 ```
+
+## 适用场景
+
+- 自驾旅行规划
+- 自由行行程安排
+- 多日游攻略生成
