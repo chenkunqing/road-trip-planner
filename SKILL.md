@@ -1,20 +1,28 @@
 ---
 name: travel-itinerary
-description: 智能旅行攻略生成，按时间线整合景点、导航、餐饮、住宿，支持HTML交互式地图和服务器部署
+description: 智能旅行攻略生成，按时间线整合景点、导航、餐饮、住宿，支持HTML交互式地图和服务器部署，可集成flight-compare进行实时价格查询
 version: 3
 author: chenkunqing
-tags: [travel, itinerary, planning, chinese, visualization, deployment, html-map]
+tags: [travel, itinerary, planning, chinese, visualization, deployment, html-map, price-query, flight-compare]
 ---
 
 # 旅行攻略文档生成
 
 ## 触发条件
+
 用户明确要求制作旅行攻略/行程规划**并提供基本信息**时使用。
+
+**相关触发场景：**
+- 用户要求制作旅行攻略/行程规划
+- 用户询问旅行预算或费用
+- 用户需要机票、酒店、火车票价格信息（可与flight-compare技能集成）
+- 用户要求路线优化或行程审查
 
 **不算触发的情况：**
 - 用户只是随便问问"去哪里好玩"
 - 用户只是查询某个景点信息
 - 用户要求的是景点清单而非行程
+- 用户只查询机票价格而不需要行程规划
 
 ## 启动流程（必须执行）
 
@@ -41,6 +49,31 @@ tags: [travel, itinerary, planning, chinese, visualization, deployment, html-map
 - 预计车程
 
 让用户确认方向正确后再细化。
+
+### 第3步：价格查询（可选，与flight-compare技能集成）
+
+当用户需要价格信息时，使用flight-compare技能查询实时价格：
+
+#### 机票价格查询
+```bash
+# 往返机票查询
+node /home/ubuntu/flight-compare/scripts/compare.js --from "出发城市" --to "目的城市" --depart "YYYY-MM-DD" --return "YYYY-MM-DD"
+
+# 单程机票查询
+node /home/ubuntu/flight-compare/scripts/compare.js --from "出发城市" --to "目的城市" --depart "YYYY-MM-DD"
+```
+
+#### 酒店价格查询
+```bash
+node /home/ubuntu/flight-compare/scripts/flyai_hotel.js --dest "城市名" --check-in "YYYY-MM-DD" --check-out "YYYY-MM-DD"
+```
+
+#### 火车票查询
+```bash
+node /home/ubuntu/flight-compare/scripts/flyai_train.js --from "出发城市" --to "目的城市" --depart "YYYY-MM-DD"
+```
+
+**注意**：价格查询结果仅供参考，机票和酒店价格实时变动。详见 `references/price-query.md`。
 
 ## 工作流程（分阶段交付）
 
@@ -145,10 +178,21 @@ tags: [travel, itinerary, planning, chinese, visualization, deployment, html-map
 
 ## 文档末尾必须附带
 
-1. **💰 费用汇总表**：分项列出（租车、油费、住宿、门票、餐饮、购物），给出总计和人均
+1. **💰 费用汇总表**：分项列出（租车、油费、住宿、门票、餐饮、购物），给出总计和人均。可集成flight-compare技能获取实时价格（机票、酒店、火车票）
+   ```markdown
+   | 项目 | 预估费用 | 实时价格 | 备注 |
+   |------|----------|----------|------|
+   | 机票（往返） | ¥4000 | ¥3650 | 携程+飞猪对比最低价 |
+   | 住宿（5晚） | ¥2500 | ¥2800 | 4星级酒店 |
+   | 餐饮 | ¥1000 | ¥950 | 每天约¥200 |
+   | 门票 | ¥500 | ¥480 | 景点门票 |
+   | 交通 | ¥300 | ¥280 | 当地交通 |
+   | **总计** | **¥8300** | **¥8160** | |
+   ```
 2. **✅ 出发前必做清单**：分类（证件、预订、手机准备、物品清单）
 3. **🔑 当地特别规则**：该目的地独有的规则/常识（如新疆加油规则、时差等）
 4. **🌧️ 应急方案**：天气不好/景点关闭时的备选方案
+5. **💡 价格查询说明**：注明价格数据来源和时间，提醒价格实时变动
 
 ## 规划过程中的交互原则
 
@@ -485,3 +529,16 @@ const popupContent = `
 10. **晚归+早起冲突**：如23:00回酒店但第二天要06:30出发=只睡6h，对长辈不友好
 11. **国内地图服务不可访问**：OpenStreetMap在国内被墙，必须使用高德地图、腾讯地图等国内服务。用户报告"地图看不了"时，首先检查是否使用了国外地图服务
 12. **文件发送问题**：QQ平台MEDIA附件发送可能失败，需要直接在聊天窗口输出内容作为备选方案
+
+---
+
+## 技能更新与维护
+
+当用户要求更新此技能时，需要合并GitHub版本和本地版本的功能。详见 `references/skill-update-merging.md`（技能版本合并经验）。
+
+### 合并检查清单
+- [ ] 保留新版本的信息收集表格和触发条件
+- [ ] 合并旧版本的HTML地图、部署、路线审查等高级功能
+- [ ] 更新版本号（如v2→v3）
+- [ ] 确保references和templates目录完整
+- [ ] 推送更新到GitHub仓库
